@@ -50,38 +50,31 @@ end
 
 def handle_reaction(event)
   item = event['item']
-  channel_id = item['channel']
-  message_id = item['ts']
+  task = Tatu::Task.new(WORKSPACE, item['channel'], item['ts'])
 
   task_doc_id = "#{channel_id}-#{message_id}"
   document_query = FIRESTORE.col("workspaces/#{WORKSPACE}/tasks").doc(task_doc_id)
 
   case event['reaction']
   when 'warning'
-    unless document_query.get.exists?
-      document_query.set(
-        channel_id: channel_id,
-        message_ts: message_id,
-        text: get_message_text(channel_id, message_id)
-      )
+    unless task.persisted?
+      task.fetch_text!(ENV['APP_TOKEN'])
+      task.persist!
     end
   when 'done'
-    document_query.delete
+    task.delete!
   end
 end
 
 def list_tasks
-  tasks_collection = FIRESTORE.col('workspaces').doc(WORKSPACE).col('tasks').get
-  tasks = tasks_collection.map.with_index(1) do |task, idx|
-    channel_id, message_ts, text = task.data.values_at(:channel_id, :message_ts, :text)
-    label = text&.lines&.first&.strip&.slice(0, 70)
-    task_link = "*#{idx}.* #{label} <https://playax.slack.com/archives/#{channel_id}/#{message_ts}|:link:>"
+  task_list = Tatu::Task.of(WORKSPACE).map.with_index(1) do |task, idx|
+    "*#{idx}.* #{task.summary} <#{task.url}|:link:>"
   end
 
-  tasks = ['Não há tarefas pendentes. Eba :tada:'] if tasks.empty?
+  task_list = ['Não há tarefas pendentes. Eba :tada:'] if task_list.empty?
 
   message_blocks = [
-    build_section(tasks.join("\n")),
+    build_section(task_list.join("\n")),
     build_actions([build_button(:Fechar, :delete), build_button(:Atualizar, :update)])
   ]
 end
@@ -118,11 +111,4 @@ end
 
 def auth_slack_http
   HTTP.auth("Bearer #{ENV['BOT_TOKEN']}")
-end
-
-def get_message_text(channel_id, message_id)
-  params = { token: ENV['APP_TOKEN'], channel: channel_id, latest: message_id, limit: 1, inclusive: true }
-  resp = HTTP.get('https://slack.com/api/conversations.history', params: params)
-  json = JSON.parse(resp)
-  json.dig('messages', 0, 'text')
 end
