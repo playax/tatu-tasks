@@ -1,6 +1,15 @@
-version ?= 0.3.1
+version = `cat .version`
 
 all: tag_old_image build rm_old_image
+
+major:
+	echo $(version) | awk -F'.' '{ print $1+1 "." $2 "." $3 }' > .version
+
+minor:
+	echo $(version) | awk -F'.' '{ print $1 "." $2+1 "." $3 }' > .version
+
+patch:
+	echo $(version) | awk -F'.' '{ print $1 "." $2 "." $3+1 }' > .version
 
 build:
 	docker build . -t tatu-tasks:$(version)
