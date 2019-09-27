@@ -1,9 +1,11 @@
+require 'google/cloud/firestore'
+
 module Tatu
   class DB
     CONN = Google::Cloud::Firestore.new(project_id: ENV['GCP_PROJECT_ID'])
 
     class << self
-      def tasks(worskpace)
+      def tasks(workspace)
         tasks_query(workspace).get.map(&:data)
       end
 

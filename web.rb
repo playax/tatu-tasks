@@ -1,9 +1,7 @@
+require 'tatu'
 require 'sinatra'
 require 'sinatra/reloader' if development?
-require 'http'
-require 'google/cloud/firestore'
 
-FIRESTORE = Google::Cloud::Firestore.new(project_id: ENV['GCP_PROJECT_ID'])
 WORKSPACE = 'playax'
 
 before do
@@ -39,21 +37,15 @@ end
 private
 
 def authenticate_request
-  data = ['v0', request.get_header('HTTP_X_SLACK_REQUEST_TIMESTAMP'), @body].join(':')
-  hexdigest = OpenSSL::HMAC.hexdigest('SHA256', ENV['SIGNING_SECRET'], data)
-  expected_signature = "v0=#{hexdigest}"
+  slack_request_timestamp = request.get_header('HTTP_X_SLACK_REQUEST_TIMESTAMP')
+  slack_signature = request.get_header('HTTP_X_SLACK_SIGNATURE')
 
-  request_signature = request.get_header('HTTP_X_SLACK_SIGNATURE')
-
-  halt(401) if request_signature != expected_signature
+  halt(401) unless Tatu::SlackAPI.authenticate_slack(@body, slack_request_timestamp, slack_signature)
 end
 
 def handle_reaction(event)
   item = event['item']
   task = Tatu::Task.new(WORKSPACE, item['channel'], item['ts'])
-
-  task_doc_id = "#{channel_id}-#{message_id}"
-  document_query = FIRESTORE.col("workspaces/#{WORKSPACE}/tasks").doc(task_doc_id)
 
   case event['reaction']
   when 'warning'

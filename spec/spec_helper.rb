@@ -1,5 +1,6 @@
-require 'rack/test'
 require 'rspec'
+require 'rack/test'
+
 require 'dotenv/load'
 
 ENV['RACK_ENV'] = 'test'
@@ -12,6 +13,6 @@ module RSpecMixin
   end
 end
 
-RSpec.configure do |c|
-  c.include RSpecMixin
+RSpec.configure do |config|
+  config.include RSpecMixin
 end
