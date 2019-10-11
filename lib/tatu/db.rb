@@ -5,8 +5,8 @@ module Tatu
     CONN = Google::Cloud::Firestore.new(project_id: ENV['GCP_PROJECT_ID'])
 
     class << self
-      def tasks(workspace)
-        tasks_query(workspace).get.map(&:data)
+      def tasks(workspace, channel_id)
+        tasks_query(workspace, channel_id).get.map(&:data)
       end
 
       def task_exists?(task)
@@ -23,12 +23,12 @@ module Tatu
 
       private
 
-      def tasks_query(workspace)
-        CONN.col("workspaces/#{workspace}/tasks")
+      def tasks_query(workspace, channel_id)
+        CONN.col("workspaces/#{workspace}/#{channel_id}")
       end
 
       def task_query(task)
-        tasks_query(task.workspace).doc(task_doc_id(task))
+        tasks_query(task.workspace, task.channel_id).doc(task_doc_id(task))
       end
 
       def task_doc_id(task)

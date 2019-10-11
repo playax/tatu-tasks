@@ -27,7 +27,7 @@ end
 
 post '/list' do
   payload = URI.decode_www_form(@body).to_h
-  post_message(payload['channel_id'], payload['user_id'], list_tasks)
+  post_message(payload['channel_id'], payload['user_id'], list_tasks(payload['channel_id']))
 end
 
 post '/interaction' do
@@ -36,7 +36,7 @@ post '/interaction' do
   response_url = payload['response_url']
 
   case action
-  when 'update' then update_message(response_url, list_tasks)
+  when 'update' then update_message(response_url, list_tasks(payload.dig('container', 'channel_id')))
   when 'delete' then delete_message(response_url)
   end
 end
@@ -65,12 +65,12 @@ def handle_reaction(event)
   end
 end
 
-def list_tasks
-  task_list = Tatu::Task.of(WORKSPACE).map.with_index(1) do |task, idx|
+def list_tasks(channel_id)
+  task_list = Tatu::Task.of(WORKSPACE, channel_id).map.with_index(1) do |task, idx|
     "*#{idx}.* #{task.summary} <#{task.url}|:link:>"
   end
 
-  task_list = ['Não há tarefas pendentes. Eba :tada:'] if task_list.empty?
+  task_list = ['Não há tarefas pendentes neste canal. Eba :tada:'] if task_list.empty?
 
   message_blocks = [
     build_section(task_list.join("\n")),

@@ -2,8 +2,8 @@ module Tatu
   class Task
     attr_reader :workspace, :channel_id, :message_ts, :text
 
-    def self.of(workspace)
-      DB.tasks(workspace).map do |data|
+    def self.of(workspace, channel_id)
+      DB.tasks(workspace, channel_id).map do |data|
         new(workspace, *data.values_at(:channel_id, :message_ts), data[:text])
       end
     end
