@@ -1,5 +1,6 @@
-require File.expand_path('../spec_helper.rb', __FILE__)
-require File.expand_path('../../web.rb', __FILE__)
+require_relative 'spec_helper'
+
+require_relative '../web'
 
 RSpec.describe Sinatra::Application do
   it 'greets' do

@@ -1,7 +1,8 @@
 require 'dotenv/load'
+require 'http'
 
-require 'tatu/db'
-require 'tatu/slack_api'
-require 'tatu/task'
+require_relative 'tatu/db'
+require_relative 'tatu/slack_api'
+require_relative 'tatu/task'
 
 module Tatu; end

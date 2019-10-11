@@ -25,9 +25,9 @@ module Tatu
 
     def persistent_attributes
       {
-        channel_id: task.channel_id,
-        message_ts: task.message_id,
-        text: task.text
+        channel_id: channel_id,
+        message_ts: message_ts,
+        text: text
       }
     end
 
@@ -44,7 +44,7 @@ module Tatu
     end
 
     def fetch_text!(app_token)
-      self.text = Tatu::SlackAPI.fetch_message_text(app_token, channel_id, message_ts)
+      @text = Tatu::SlackAPI.fetch_message_text(app_token, channel_id, message_ts)
     end
   end
 end

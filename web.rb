@@ -1,6 +1,8 @@
-require 'tatu'
+require_relative 'lib/tatu'
 require 'sinatra'
 require 'sinatra/reloader' if development?
+
+also_reload 'lib/tatu'
 
 WORKSPACE = 'playax'
 
@@ -12,6 +14,11 @@ end
 get '/' do
   'I\'m Healthy'
 end
+
+# For redifining URL on Slack:
+# post '/' do
+#   JSON.parse(request.body.read)['challenge']
+# end
 
 post '/' do
   payload = JSON.parse(@body)
