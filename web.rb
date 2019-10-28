@@ -1,8 +1,8 @@
 require_relative 'lib/tatu'
 require 'sinatra'
-require 'sinatra/reloader' if development?
 
-also_reload 'lib/tatu'
+require 'sinatra/reloader' if development?
+also_reload 'lib/tatu' if development?
 
 WORKSPACE = 'playax'
 
