@@ -37,6 +37,7 @@ RSpec.describe Sinatra::Application do
       let(:json) do
         {
           'event' => {
+            'type' => 'reaction_added',
             'item' => {
               'channel' => 'channel_id',
               'ts' => 'ts'
@@ -80,6 +81,32 @@ RSpec.describe Sinatra::Application do
         end
 
         it 'deletes task' do
+          expect(task).to receive(:delete!)
+
+          post '/', json.to_json
+        end
+      end
+    end
+
+    describe 'task message deleting' do
+      context 'when the task message is deleted on Slack' do
+        let(:task) { instance_double(Tatu::Task) }
+        let(:json) do
+          {
+            event: {
+              type: 'message',
+              subtype: 'message_deleted',
+              deleted_ts: '1572290987.000200',
+              channel: 'channel_id'
+            }
+          }
+        end
+
+        before do
+          expect(Tatu::Task).to receive(:new).with(any_args, 'channel_id', '1572290987.000200').and_return(task)
+        end
+
+        it 'also deletes the task' do
           expect(task).to receive(:delete!)
 
           post '/', json.to_json

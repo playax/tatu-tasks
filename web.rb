@@ -18,7 +18,8 @@ end
 
 post '/' do
   payload = JSON.parse(@body)
-  handle_reaction(payload['event'])
+  event = payload['event']
+  handle_slack_event(event)
 end
 
 post '/list' do
@@ -39,6 +40,13 @@ end
 
 private
 
+def handle_slack_event(event)
+  case event['type']
+  when 'reaction_added' then handle_reaction(event)
+  when 'message' then handle_message(event)
+  end
+end
+
 def handle_reaction(event)
   item = event['item']
   task = Tatu::Task.new(WORKSPACE, item['channel'], item['ts'])
@@ -50,6 +58,14 @@ def handle_reaction(event)
       task.persist!
     end
   when 'done'
+    task.delete!
+  end
+end
+
+def handle_message(event)
+  case event.dig('subtype')
+  when 'message_deleted'
+    task = Tatu::Task.new(WORKSPACE, event['channel'], event['deleted_ts'])
     task.delete!
   end
 end
