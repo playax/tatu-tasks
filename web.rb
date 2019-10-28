@@ -7,8 +7,14 @@ also_reload 'lib/tatu' if development?
 WORKSPACE = 'playax'
 
 before do
+  pass if request.get? && request.path == '/'
+
   @body = request.body.read
   halt(401) if !Tatu::SlackAPI.authentic?(request, @body)
+end
+
+get '/' do
+  'I am healthy'
 end
 
 # For redifining URL on Slack:

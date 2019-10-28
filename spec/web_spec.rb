@@ -3,6 +3,15 @@ require_relative 'spec_helper'
 require_relative '../web'
 
 RSpec.describe Sinatra::Application do
+  describe 'health check' do
+    it 'greets' do
+      get '/'
+
+      expect(last_response).to be_ok
+      expect(last_response.body).to eq('I am healthy')
+    end
+  end
+
   describe 'authentication' do
     context 'when no authentication is given' do
       it 'returns 401' do
