@@ -8,11 +8,7 @@ WORKSPACE = 'playax'
 
 before do
   @body = request.body.read
-  authenticate_request if request.request_method == 'POST'
-end
-
-get '/' do
-  'I\'m Healthy'
+  halt(401) if !Tatu::SlackAPI.authentic?(request, @body)
 end
 
 # For redifining URL on Slack:
@@ -42,13 +38,6 @@ post '/interaction' do
 end
 
 private
-
-def authenticate_request
-  slack_request_timestamp = request.get_header('HTTP_X_SLACK_REQUEST_TIMESTAMP')
-  slack_signature = request.get_header('HTTP_X_SLACK_SIGNATURE')
-
-  halt(401) unless Tatu::SlackAPI.authenticate_slack(@body, slack_request_timestamp, slack_signature)
-end
 
 def handle_reaction(event)
   item = event['item']

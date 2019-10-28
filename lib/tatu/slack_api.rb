@@ -8,7 +8,10 @@ module Tatu
         json.dig('messages', 0, 'text')
       end
 
-      def authenticate_slack(body, slack_request_timestamp, slack_signature)
+      def authentic?(request, body)
+        slack_request_timestamp = request.get_header('HTTP_X_SLACK_REQUEST_TIMESTAMP')
+        slack_signature = request.get_header('HTTP_X_SLACK_SIGNATURE')
+
         data = ['v0', slack_request_timestamp, body].join(':')
         hexdigest = OpenSSL::HMAC.hexdigest('SHA256', signing_secret, data)
         expected_signature = "v0=#{hexdigest}"

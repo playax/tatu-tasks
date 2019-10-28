@@ -3,13 +3,6 @@ require_relative 'spec_helper'
 require_relative '../web'
 
 RSpec.describe Sinatra::Application do
-  it 'greets' do
-    get '/'
-
-    expect(last_response).to be_ok
-    expect(last_response.body).to eq('I\'m Healthy')
-  end
-
   describe 'authentication' do
     context 'when no authentication is given' do
       it 'returns 401' do
@@ -37,7 +30,7 @@ RSpec.describe Sinatra::Application do
   end
 
   describe 'task management' do
-    before { expect(Tatu::SlackAPI).to receive(:authenticate_slack).and_return(true) }
+    before { expect(Tatu::SlackAPI).to receive(:authentic?).and_return(true) }
 
     describe 'creation and deletion' do
       let(:task) { instance_double(Tatu::Task) }
