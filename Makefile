@@ -1,6 +1,6 @@
 next-version-file = .next-version
 version-file = .version
-version = `cat $(version-file)`
+version = $(shell cat $(version-file))
 image = tatu-tasks:$(version)
 remote-image-prefix = gcr\.io\/playax18\/tatu-tasks
 remote-image = $(remote-image-prefix)\:$(version)
