@@ -17,7 +17,8 @@ get '/' do
   'I am healthy'
 end
 
-# For redifining URL on Slack:
+# For redifining URL on Slack, uncomment these lines and comment
+# both the other "post '/'" route and authentication:
 # post '/' do
 #   JSON.parse(request.body.read)['challenge']
 # end
